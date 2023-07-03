@@ -1,0 +1,23 @@
+/* hides the native tabs */
+/*#TabsToolbar {
+  visibility: collapse;
+}*/
+/* leaves space for the window buttons */
+#nav-bar {
+    margin-top: -1px;
+    margin-right: 1px;
+    margin-bottom: -2px;
+}
+#TabsToolbar, #sidebar-header {
+  display: none !important;
+}
+#sidebar-box {
+  position: relative !important;
+  overflow:hidden;
+  max-width: var(--sidebar-hover-width) !important;
+}
+.tab {
+  margin-left: 1px;
+  margin-right: 1px;
+}
+#userContext-label { display: none !important; }
