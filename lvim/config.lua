@@ -3,8 +3,8 @@
 -- Forum: https://www.reddit.com/r/lunarvim/
 -- Discord: https://discord.com/invite/Xb9B4Ny
 lvim.transparent_window = true
-lvim.colorscheme = "tokyonight"
-vim.g.tokyonight_style = "night"
+lvim.colorscheme = "catppuccin-mocha"
+-- vim.g.tokyonight_style = "night"
 ------------------------
 -- Treesitter ----------------------
 lvim.builtin.treesitter.ensure_installed = {
@@ -114,64 +114,23 @@ lvim.plugins = {
   },
   {
     "theprimeagen/harpoon",
-  },
-  {
-    "nvim-telescope/telescope.nvim",
-    dependencies = {
-      "nvim-lua/plenary.nvim",
-      "debugloop/telescope-undo.nvim",
-    },
     config = function()
-      require("telescope").setup({
-        extensions = {
-          undo = {
-            use_delta = true,
-            use_custom_command = nil, -- setting this implies `use_delta = false`. Accepted format is: { "bash", "-c", "echo '$DIFF' | delta" }
-            side_by_side = true,
-            layout_strategy = "vertical",
-            layout_config = {
-              preview_width = 0.5,  -- preview width in percentage relative to the current window width
-              preview_height = 0.8, -- preview height in percentage relative to the current window height
-            },
-            diff_context_lines = vim.o.scrolloff,
-            entry_format = "state #$ID, $STAT, $TIME",
-            time_format = "",
-            mappings = {
-              i = {
-                -- IMPORTANT: Note that telescope-undo must be available when telescope is configured if
-                -- you want to replicate these defaults and use the following actions. This means
-                -- installing as a dependency of telescope in it's `requirements` and loading this
-                -- extension from there instead of having the separate plugin definition as outlined
-                -- above.
-                ["<cr>"] = require("telescope-undo.actions").yank_additions,
-                ["<S-cr>"] = require("telescope-undo.actions").yank_deletions,
-                ["<C-cr>"] = require("telescope-undo.actions").restore,
-              },
-            },
-          },
-        },
-      })
-      require("telescope").load_extension("undo")
-      vim.keymap.set("n", "<leader>u", "<cmd>Telescope undo<cr>")
-    end,
+      local mark = require("harpoon.mark")
+      local ui = require("harpoon.ui")
+
+      vim.keymap.set("n", "<M-a>", mark.add_file)
+      vim.keymap.set("n", "<M-e>", ui.toggle_quick_menu)
+
+      vim.keymap.set("n", "<M-h>", function() ui.nav_file(1) end)
+      vim.keymap.set("n", "<M-t>", function() ui.nav_file(2) end)
+      vim.keymap.set("n", "<M-n>", function() ui.nav_file(3) end)
+    end
   },
 }
 
--- harpoon config
-local mark = require("harpoon.mark")
-local ui = require("harpoon.ui")
-
-vim.keymap.set("n", "<C-a>", mark.add_file)
-vim.keymap.set("n", "<C-e>", ui.toggle_quick_menu)
-
-vim.keymap.set("n", "<C-h>", function() ui.nav_file(1) end)
-vim.keymap.set("n", "<C-t>", function() ui.nav_file(2) end)
-vim.keymap.set("n", "<C-n>", function() ui.nav_file(3) end)
--- vim.keymap.set("n", "<C-s>", function() ui.nav_file(4) end)
-
 -- restore the last session
--- TODO: probably remap to something else as keymap is used in harpoon too
 vim.api.nvim_set_keymap("n", "<C-s>", [[<cmd>lua require("persistence").load({ last = true })<cr>]], {})
+
 ------------------------
 -- Formatting
 ------------------------
@@ -232,6 +191,10 @@ lsp_manager.setup("gopls", {
   capabilities = require("lvim.lsp").common_capabilities(),
   settings = {
     gopls = {
+      completeUnimported = true,
+      analyses = {
+        unusedparams = true,
+      },
       usePlaceholders = true,
       gofumpt = true,
       codelenses = {
